@@ -57,6 +57,9 @@ const Playground = () => {
     player.id = id;
     playerRef.current[id] = player; // Store by ID
 
+    //for dragging 
+    scene.input.setDraggable(player);
+
     //click function
     player.on("pointerdown", () => {
       console.log("Player clicked!");
@@ -87,6 +90,14 @@ const Playground = () => {
       graphics.strokeCircle(playerX, playerY, boundaryRadius);
       boundaryVisibleRef.current = true;
     }
+  }
+
+  // clear boundary code for autoremoval in dragging
+  function clearBoundary() {
+    const graphics = boundaryGraphicsRef.current;
+    if (!graphics) return;
+    graphics.clear();
+    boundaryVisibleRef.current = false;
   }
 
   // useffect for phraser
@@ -122,7 +133,58 @@ const Playground = () => {
       const graphics = this.add.graphics();
       boundaryGraphicsRef.current = graphics;
 
+      // add player - scene , id , width , height , color
       addPlayer(this, 1 ,  window.innerWidth / 2 , window.innerHeight / 2, 0x0000ff);
+
+      // DRAG logic
+
+      //dragstart
+      this.input.on("dragstart", (pointer, gameObject) => {
+        console.log("drag started")
+        gameObject.setAlpha(0.5);
+      });
+
+      // drag player
+      this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
+
+        console.log(`Dragging: (${dragX}, ${dragY})`);
+
+        // calculation of distance from player to drag point
+          const distance = Phaser.Math.Distance.Between(
+            boundaryCenterRef.current.x,
+            boundaryCenterRef.current.y,
+            dragX,
+            dragY
+          );
+
+          //actual distance where player can move
+          const maxDistance = boundaryRadius - playerRadius;
+
+          //logic to set player position after drag
+          if (distance <= maxDistance) {
+            gameObject.setPosition(dragX, dragY);
+          } else {
+            const angle = Phaser.Math.Angle.Between(
+              boundaryCenterRef.current.x,
+              boundaryCenterRef.current.y,
+              dragX,
+              dragY
+            );
+            const constrainedX =
+              boundaryCenterRef.current.x + maxDistance * Math.cos(angle);
+            const constrainedY =
+              boundaryCenterRef.current.y + maxDistance * Math.sin(angle);
+            gameObject.setPosition(constrainedX, constrainedY);
+          }
+  
+      });
+
+      this.input.on("dragend", (pointer, gameObject) => {
+        console.log("dragend")
+        gameObject.setAlpha(1);
+        clearBoundary();
+      });
+
     }
 
     //update
