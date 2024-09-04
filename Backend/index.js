@@ -16,12 +16,15 @@ const io = new Server(server,{
 
 // definitions 
 
-let room = {}; // To keep track of rooms and the players in them
+let rooms = {}; // To keep track of rooms and the players in them
 
 // socket connection
 
 io.on('connection',(socket)=>{
     console.log('A user connected');
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
 
     //joingame code 
 
@@ -69,6 +72,8 @@ io.on('connection',(socket)=>{
           }
     
       })
+
+      
     
     });
 })
