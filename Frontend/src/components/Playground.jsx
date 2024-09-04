@@ -29,6 +29,8 @@ const Playground = () => {
       console.log('Connected to server');
     });
 
+    
+
     return () => {
       socketRef.current.disconnect();
     };
@@ -63,6 +65,7 @@ const Playground = () => {
     //click function
     player.on("pointerdown", () => {
       console.log("Player clicked!");
+      console.log(player)
       toggleBoundary(player);
     });
 
@@ -80,7 +83,6 @@ const Playground = () => {
       graphics.clear();
       boundaryVisibleRef.current = false;
     } else {
-      console.log(`From toggle boundary ${player.id}`);              
       const playerX = player.x;
       const playerY = player.y;
 
@@ -134,7 +136,20 @@ const Playground = () => {
       boundaryGraphicsRef.current = graphics;
 
       // add player - scene , id , width , height , color
-      addPlayer(this, 1 ,  window.innerWidth / 2 , window.innerHeight / 2, 0x0000ff);
+
+      // add all the players 
+
+      //client 
+      for(let i=0;i<10;i++)
+      {
+        addPlayer(this, i ,  window.innerWidth / 4 + 100*i , window.innerHeight / 20, 0x0000ff);
+      }
+
+      //opponent
+      for(let i=0;i<10;i++)
+        {
+          addPlayer(this, i ,  window.innerWidth / 4 + 100*i , window.innerHeight / 1.05, 0x0000ff);
+        }
 
       // DRAG logic
 
@@ -197,7 +212,12 @@ const Playground = () => {
     };
   }, []);
 
-  return <div ref={phaserRef} style={{ width: "100%", height: "100%" }} />;
+  return (
+    <>
+    <div ref={phaserRef} style={{ width: "100%", height: "100%" }} />;
+    </>
+  )
+  
 };
 
 export default Playground;
