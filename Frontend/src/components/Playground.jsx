@@ -6,10 +6,18 @@ const Playground = () => {
 
   // some references to store the value 
 
+  //game ref
   const phaserRef = useRef(null);
   const gameRef = useRef(null);
+  //player ref
   const playerRef = useRef({});
   const playerRadius = 30;
+  //boundary ref
+  const boundaryGraphicsRef = useRef(null);
+  const boundaryVisibleRef = useRef(false);
+  const boundaryCenterRef = useRef({ x: 0, y: 0 });
+  const boundaryRadius = 100;
+  //socket ref
   const socketRef = useRef(null);
 
   // useffect initalised for the socket connection
@@ -52,9 +60,33 @@ const Playground = () => {
     //click function
     player.on("pointerdown", () => {
       console.log("Player clicked!");
+      toggleBoundary(player);
     });
 
     return player;
+  }
+
+  //toggle boundary code 
+
+  function toggleBoundary(player) {
+    const graphics = boundaryGraphicsRef.current;
+
+    if (!graphics || !player) return;
+
+    if (boundaryVisibleRef.current) {
+      graphics.clear();
+      boundaryVisibleRef.current = false;
+    } else {
+      console.log(`From toggle boundary ${player.id}`);              
+      const playerX = player.x;
+      const playerY = player.y;
+
+      boundaryCenterRef.current = { x: playerX, y: playerY };
+
+      graphics.lineStyle(3, 0xff0000);
+      graphics.strokeCircle(playerX, playerY, boundaryRadius);
+      boundaryVisibleRef.current = true;
+    }
   }
 
   // useffect for phraser
@@ -85,6 +117,11 @@ const Playground = () => {
     //create function
     function create() {
       this.cameras.main.setBackgroundColor("#242424");
+
+      //for boundary graphics
+      const graphics = this.add.graphics();
+      boundaryGraphicsRef.current = graphics;
+
       addPlayer(this, 1 ,  window.innerWidth / 2 , window.innerHeight / 2, 0x0000ff);
     }
 
