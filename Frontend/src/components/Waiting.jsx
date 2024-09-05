@@ -1,46 +1,42 @@
-import React , {useEffect} from 'react'
+import React , {useEffect, useRef} from 'react'
 import { useNavigate } from 'react-router-dom';
 
 //import of socket client
-import io from 'socket.io-client';
+import socket from '../socket';
 
 // waiting component initialised
 const Waiting = () => {
 
+  //to store id of player
+  let playerIdRef = useRef(null);
+
   //Set up the connection and other socket listeners on component mount
   useEffect(() => {
-    const socket = io('http://localhost:8080');
 
-    // to check connection is established
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    });
+  // events for joining a room 
 
-    // Emit join game event
-    socket.emit('joinGame');
+  // Listen for room join confirmation
+  socket.on('joinedRoom', ({ roomId, playerId }) => {
+    console.log(`Joined room: ${roomId} as ${playerId}`);
+    //storing player id
+    playerIdRef = playerId;
+  });
 
-    // events for joining a room 
-
-    // Listen for room join confirmation
-    socket.on('joinedRoom', ({ roomId, playerId }) => {
-      console.log(`Joined room: ${roomId} as ${playerId}`);
-    });
-
-    // Listen for game start event
-    socket.on('startGame', (roomId) => {
-      console.log(`Game started in room: ${roomId}`);
-
-      setTimeout(() => {
-        console.log("game start in 5 seconds");
-        // Redirect to the playground
-        navigate(`/playground/${roomId}`);
-      }, 5000);
+  // Listen for game start event
+  socket.on('startGame', (roomId) => {
+    console.log(`Game started in room: ${roomId}`); //room confirmation
+    console.log("game start in 5 seconds"); //notifying for wait
+    setTimeout(() => {
+      // Redirect to the playground with room id and player id in url
+      navigate(`/playground/${roomId}${playerIdRef}`);
+    }, 5000);
       
     });
 
     // Clean up the socket connection on component unmount
     return () => {
-      socket.disconnect();
+      // socket.disconnect();
+      socket.off('connect');
     };
   }, []);
 
