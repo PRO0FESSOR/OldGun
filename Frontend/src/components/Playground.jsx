@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Phaser from "phaser";
-import io from "socket.io-client";
+import { useParams } from 'react-router-dom';
+import socket from "../socket";
+
 
 const Playground = () => {
 
@@ -17,28 +19,29 @@ const Playground = () => {
   const boundaryVisibleRef = useRef(false);
   const boundaryCenterRef = useRef({ x: 0, y: 0 });
   const boundaryRadius = 100;
-  //socket ref
-  const socketRef = useRef(null);
+  // room id
+  const { roomId } = useParams();
+  // actual id
+  let playerId;
 
+  
   // useffect initalised for the socket connection
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:8080');
 
-    socketRef.current.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    
+    // logging room id
+    console.log(`room id is -> ${roomId}`);
+    // getting playerid from the last of room id
+    playerId = roomId.slice(-1);
+    console.log(`actual id is -> player${playerId}`);
 
     return () => {
-      socketRef.current.disconnect();
+      socket.off('connect');
     };
   }, []);
 
   // add player function 
-
-  function addPlayer(scene, id, x, y, color) {
+  function addPlayer(scene, id, x, y, color , who) {
 
     //if scene not available
     if (!scene) {
@@ -57,6 +60,9 @@ const Playground = () => {
 
     //player id creation
     player.id = id;
+    if(who === "client"){
+      player.clientId = `player${playerId}`;
+    }
     playerRef.current[id] = player; // Store by ID
 
     //for dragging 
@@ -94,6 +100,7 @@ const Playground = () => {
     }
   }
 
+
   // clear boundary code for autoremoval in dragging
   function clearBoundary() {
     const graphics = boundaryGraphicsRef.current;
@@ -105,6 +112,7 @@ const Playground = () => {
   // useffect for phraser
 
   useEffect(() => {
+
     const config = {
       type: Phaser.AUTO,
       width: window.innerWidth,
@@ -139,17 +147,15 @@ const Playground = () => {
 
       // add all the players 
 
-      //client 
-      for(let i=0;i<10;i++)
-      {
-        addPlayer(this, i ,  window.innerWidth / 4 + 100*i , window.innerHeight / 20, 0x0000ff);
+      // Add opponent players
+      for (let i = 0; i < 10; i++) {
+        addPlayer(this, i, window.innerWidth / 4 + 100 * i, window.innerHeight / 20, 0x0000ff, "opponent");
       }
 
-      //opponent
-      for(let i=0;i<10;i++)
-        {
-          addPlayer(this, i ,  window.innerWidth / 4 + 100*i , window.innerHeight / 1.05, 0x0000ff);
-        }
+      // Add client players
+      for (let i = 0; i < 10; i++) {
+        addPlayer(this, i + 10, window.innerWidth / 4 + 100 * i, window.innerHeight / 1.05, 0xff0000, "client");
+      }     
 
       // DRAG logic
 
