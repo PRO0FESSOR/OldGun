@@ -63,6 +63,9 @@ const Playground = () => {
     if(who === "client"){
       player.clientId = `player${playerId}`;
     }
+    else{
+      player.clientId = null;
+    }
     playerRef.current[id] = player; // Store by ID
 
     //for dragging 
@@ -72,7 +75,9 @@ const Playground = () => {
     player.on("pointerdown", () => {
       console.log("Player clicked!");
       console.log(player)
-      toggleBoundary(player);
+      if(player.clientId){
+        toggleBoundary(player);
+      }
     });
 
     return player;
@@ -149,12 +154,12 @@ const Playground = () => {
 
       // Add opponent players
       for (let i = 0; i < 10; i++) {
-        addPlayer(this, i, window.innerWidth / 4 + 100 * i, window.innerHeight / 20, 0x0000ff, "opponent");
+        addPlayer(this, i, window.innerWidth / 4 + 100 * i, window.innerHeight / 20, 0xff0000, "opponent");
       }
 
       // Add client players
       for (let i = 0; i < 10; i++) {
-        addPlayer(this, i + 10, window.innerWidth / 4 + 100 * i, window.innerHeight / 1.05, 0xff0000, "client");
+        addPlayer(this, i + 10, window.innerWidth / 4 + 100 * i, window.innerHeight / 1.05, 0x0000ff, "client");
       }     
 
       // DRAG logic
@@ -168,7 +173,8 @@ const Playground = () => {
       // drag player
       this.input.on("drag", (pointer, gameObject, dragX, dragY) => {
 
-        console.log(`Dragging: (${dragX}, ${dragY})`);
+        if(gameObject.clientId){
+          console.log(`Dragging: (${dragX}, ${dragY})`);
 
         // calculation of distance from player to drag point
           const distance = Phaser.Math.Distance.Between(
@@ -197,7 +203,10 @@ const Playground = () => {
               boundaryCenterRef.current.y + maxDistance * Math.sin(angle);
             gameObject.setPosition(constrainedX, constrainedY);
           }
-  
+        }
+        else{
+          console.log("this is not your player");
+        }
       });
 
       this.input.on("dragend", (pointer, gameObject) => {
