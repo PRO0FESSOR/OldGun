@@ -15,7 +15,6 @@ const io = new Server(server,{
 })
 
 // definitions 
-
 let rooms = {}; // To keep track of rooms and the players in them
 
 // socket connection
@@ -56,7 +55,7 @@ io.on('connection',(socket)=>{
         console.log(`Player joined room: ${roomId}`);
     
         // Notify the client of the room they joined
-        socket.emit('joinedRoom', { roomId, playerId: `player${rooms[roomId].length}` });
+        socket.emit('joinedRoom', { roomId, playerId: `${rooms[roomId].length}` });
     
         // If the room is full, notify the players to start the game
         if (rooms[roomId].length === 2) {
@@ -72,9 +71,6 @@ io.on('connection',(socket)=>{
           }
     
       })
-
-      
-    
     });
 })
 
