@@ -1,8 +1,24 @@
 import React , {useEffect} from 'react'
 import { useNavigate } from 'react-router-dom';
+import socket from '../socket';
 
 //homepage initialised
 const Homepage = () => {
+
+  useEffect(() => {
+
+    // to check connection is established
+    socket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
+    // Clean up the socket connection on component unmount
+    return () => {
+      // socket.disconnect();
+      socket.off('connect');
+    };
+  }, []);
+
 
   //use of navigate
   const navigate = useNavigate(); 
@@ -10,6 +26,7 @@ const Homepage = () => {
   // function to navigate to waiting area
     const handleJoinGame = () => {
         console.log("inside handel join")
+        socket.emit('joinGame');
         navigate('/waiting');
       }
 
