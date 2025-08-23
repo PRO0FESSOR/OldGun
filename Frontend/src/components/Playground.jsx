@@ -35,8 +35,22 @@ const Playground = () => {
     playerId = roomId.slice(-1);
     console.log(`actual id is -> player${playerId}`);
 
+    // Function to handle playerMove event
+    const handlePlayerMove = (data) => {
+      console.log('Received playerMove:', data);
+      const ID = data.id + 10
+      const player = playerRef.current[ID];
+      if(player){
+        console.log(`player found`);// Directly update the position
+        console.log(player);
+      }
+    };
+
+    // Register playerMove event
+    socket.on('playerMove', handlePlayerMove);
+
     return () => {
-      socket.off('connect');
+      socket.off('playerMove', handlePlayerMove);
     };
   }, []);
 
@@ -75,7 +89,8 @@ const Playground = () => {
     player.on("pointerdown", () => {
       console.log("Player clicked!");
       console.log(player)
-      if(player.clientId){
+      if(player.clientId === `player${playerId}`){
+        console.log("inside click condition");
         toggleBoundary(player);
       }
     });
@@ -86,6 +101,7 @@ const Playground = () => {
   //toggle boundary code 
 
   function toggleBoundary(player) {
+    console.log("inside toggle boundary");
     const graphics = boundaryGraphicsRef.current;
 
     if (!graphics || !player) return;
@@ -154,12 +170,12 @@ const Playground = () => {
 
       // Add opponent players
       for (let i = 0; i < 10; i++) {
-        addPlayer(this, i, window.innerWidth / 4 + 100 * i, window.innerHeight / 20, 0xff0000, "opponent");
+        addPlayer(this, i + 10, window.innerWidth / 4 + 100 * i, window.innerHeight / 20, 0xff0000, "opponent");
       }
 
       // Add client players
       for (let i = 0; i < 10; i++) {
-        addPlayer(this, i + 10, window.innerWidth / 4 + 100 * i, window.innerHeight / 1.05, 0x0000ff, "client");
+        addPlayer(this, i, window.innerWidth / 4 + 100 * i, window.innerHeight / 1.05, 0x0000ff, "client");
       }     
 
       // DRAG logic
@@ -203,6 +219,12 @@ const Playground = () => {
               boundaryCenterRef.current.y + maxDistance * Math.sin(angle);
             gameObject.setPosition(constrainedX, constrainedY);
           }
+          //emmiting socket
+          socket.emit('playerMove', {
+            id: gameObject.id,
+            x: gameObject.x,
+            y: gameObject.y
+          });
         }
         else{
           console.log("this is not your player");

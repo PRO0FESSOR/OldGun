@@ -1,0 +1,39 @@
+## Backend Setup
+
+- NODE JS - Runtime enviournment 
+- EXPRESS - Handling regular http requests
+- NODE HTTP SERVER  - To connect socket connection with the server 
+- SOCKET.IO - Bidirectional and low-latency communication
+- NODEMON - Restarting application
+
+### Installation
+
+- npm i EXPRESS
+- npm i socket.IO
+- npm i nodemon
+
+### scripts 
+
+- npm start 
+- npm run dev - nodemon 
+- nm run test
+
+### cors 
+
+cors: {
+        origin: '*', //adjust according to the port
+        methods: ['GET', 'POST'],
+    }
+
+### api 
+
+### key Module
+
+- index.js - entry point of the application
+
+### code overview
+
+- installation for backend setup.
+- initialisation of express app , node http server and socket.io connection 
+- handling socket connection 
+- listning port

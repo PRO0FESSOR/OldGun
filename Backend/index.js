@@ -61,6 +61,12 @@ io.on('connection',(socket)=>{
         if (rooms[roomId].length === 2) {
           io.in(roomId).emit('startGame', roomId);
         }
+
+        socket.on('playerMove',(data)=>{
+          console.log('Received playerMove:', data);
+          // Broadcast to everyone in the room except the sender
+          socket.broadcast.to(roomId).emit('playerMove', data);
+        })
     
          // Handle player disconnection
          socket.on('disconnect', () => {
@@ -71,6 +77,7 @@ io.on('connection',(socket)=>{
           }
     
       })
+
     });
 })
 

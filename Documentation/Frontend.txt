@@ -1,0 +1,20 @@
+## Frontend Setup
+
+- vite + react 
+- tailwind 
+- postcss
+- autoprefixer
+
+### Installation 
+
+- npm install 
+
+### Run 
+
+- npm run dev
+
+### COMPONENTS
+
+-> Home page
+
+
